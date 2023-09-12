@@ -1,10 +1,10 @@
-from heapq import heappush, heappop, heapify
+from heapq import heappush, heappop
+from water3 import initial_state, successors, is_goal
 from utils import create_node
 
 
 def uniform_cost_tree_search(problem):
-    initial_node = create_node(problem.initial_state(), None,
-                               "", 0, 0)
+    initial_node = create_node(problem.initial_state(), None, "", 0, 0)
     frontier = [(0, initial_node)]
     n_visits = 0
     while True:
@@ -19,42 +19,46 @@ def uniform_cost_tree_search(problem):
             else:
                 for succ, cost in problem.successors(state):
                     child_cost = path_cost + cost
-                    child = create_node(succ, node, "", child_cost,
-                                        depth + 1)
+                    child = create_node(succ, node, "", child_cost, depth + 1)
                     heappush(frontier, (child_cost, child))
 
 
-def index(f, s):
-    return next((i for i, x in enumerate(f) if x[1][0] == s), -1)
-
-
-def uniform_cost_graph_search(problem):
-    initial_node = create_node(problem.initial_state(), None,
-                               "", 0, 0)
+def uniform_cost_graph_search():
+    initial_node = create_node(initial_state(), None, "", 0, 0)
     frontier = [(0, initial_node)]
     explored = set()
     n_visits = 0
-    while True:
-        if not frontier:
-            return (None, n_visits)
-        else:
-            n_visits += 1
-            _, node = heappop(frontier)
-            state, _, _, path_cost, depth = node
+    while frontier:
+        _, node = heappop(frontier)
+        state, parent, action, path_cost, depth = node
+        if is_goal(state):
+            return (node, n_visits)
+        if state not in explored:
             explored.add(state)
-            if problem.is_goal(state):
-                return (node, n_visits)
-            else:
-                for succ, cost in problem.successors(state):
-                    child_cost = path_cost + cost
-                    child = create_node(succ, node, "", child_cost,
-                                        depth + 1)
-                    if succ not in explored:
-                        idx = index(frontier, succ)
-                        if idx < 0:
-                            heappush(frontier, (child_cost, child))
-                        else:
-                            _, existing = frontier[idx]
-                            if existing[3] > child_cost:
-                                frontier[idx] = (child_cost, child)
-                                heapify(frontier)
+            for successor, successor_action, cost in successors(state):
+                child_cost = path_cost + cost
+                child = create_node(successor, node, successor_action, child_cost, depth + 1)
+                heappush(frontier, (child_cost, child))
+                n_visits += 1
+    return (None, n_visits)
+
+def print_solution(node):
+    if node is None:
+        print("No solutions found")
+    else:
+        path = []
+        while node:
+            state, _, action, _, _ = node
+            path.append((state, action))
+            node = node[1]
+        path.reverse()
+        for state, action in path:
+            print(f"Action: {action} Initial State: {state}")
+
+if __name__ == "__main__":
+    goal_node, n_visits = uniform_cost_graph_search()
+    print_solution(goal_node)
+    print("Step Cost =", n_visits)
+
+def index(f, s):
+    return next((i for i, x in enumerate(f) if x[1][0] == s), -1)

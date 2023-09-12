@@ -1,6 +1,3 @@
-import copy
-
-
 def initial_state():
     return ((7, 2, 4, 5, 0, 6, 8, 3, 1), 1, 1)
 
@@ -40,15 +37,26 @@ def h1(s):
     goal = (1, 2, 3, 4, 5, 6, 7, 8, 0)
     board, _, _ = s
     res = 0
-    # The for loop counts the number of elements that is different from
-    # the goal configuration.
-    # We start from index 1 to 8 because the blank is excluded.
+
     for idx in range(1, 9):
         if goal[idx] != board[idx]:
             res += 1
     return res
 
+
 def h3(s):
-    # implement this function
+    
     board, _, _ = s
-    return 0
+    goal = (1, 2, 3, 4, 5, 6, 7, 8, 0)
+    board, _, _ = s
+    res = 0
+
+    for idx in range(9):
+        if board[idx] not in goal[(idx//3)*3:(idx//3)*3+3]:
+            res += 1
+
+    for idx in range(9):
+        if board[idx] not in (goal[idx%3], goal[idx%3+3], goal[idx%3+6]):
+            res += 1
+
+        return res
