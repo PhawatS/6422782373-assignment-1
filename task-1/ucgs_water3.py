@@ -2,7 +2,7 @@ import water3 as problem
 import utils
 import ucs
 
-goal_node, n_visits = ucs.uniform_cost_graph_search(problem)
+goal_node, n_visits = ucs.uniform_cost_graph_search()
 if goal_node is not None:
     print("Solution")
     print("========")
